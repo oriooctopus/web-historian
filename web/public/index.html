@@ -5,8 +5,18 @@
 </head>
 <body>
   Enter a URL here:
-  <form method="POST">
+  <form method="POST" action="../basic-server.js">
     <input type="input" name="url"></input>
   </form>
+  <script
+  src="https://code.jquery.com/jquery-2.2.4.js"
+  integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI="
+  crossorigin="anonymous"></script>
+  <script>
+    $('form').on('submit', function(e) {
+      e.preventDefault();
+      $.post("http://127.0.0.1:8080", "www.example.com");
+    })
+  </script>
 </body>
 </html>

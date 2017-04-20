@@ -1,6 +1,8 @@
 var path = require('path');
 var archive = require('../helpers/archive-helpers');
 var fs = require('fs');
+var httpHelpers = require('./http-helpers.js');
+var htmlFetcher = require('../../workers/htmlFetcher.js');
 // require more modules/folders here!
 
 
@@ -9,7 +11,7 @@ var fs = require('fs');
 exports.handleRequest = function (req, res) {
   if (req.method === 'GET') {
     var statusCode = 200;
-    res.writeHead(statusCode);
+    res.writeHead(statusCode, httpHelpers.headers);
     if (req.url === '/') {
       fs.readFile(__dirname + '/public/index.html', (err, data) => {
         if (err) {console.log('error!', err);}
@@ -27,7 +29,7 @@ exports.handleRequest = function (req, res) {
           });
         } else {
           console.log('File not found');
-          res.writeHead(404);
+          res.writeHead(404, httpHelpers.headers);
           res.end('File not found');
         }
       });
@@ -35,18 +37,29 @@ exports.handleRequest = function (req, res) {
     }
     
   } else if (req.method === 'POST') {
-    res.writeHead(302);
+    res.writeHead(302, httpHelpers.headers);
     req.on('data', (data) => {
-      archive.addUrlToList(data.toString('utf-8').substring(4), () => {
-        res.end();
-      });
+      var url = data.toString('utf-8').substring(4);
+      console.log(url);
+      //check if page is in archive
+        //if yes redirect to page 
+      //else check if page is in list
+        // redirect to loading page
+      // else
+        // add to list
+        // redirect to loading page
+        // get the page
+
+        archive.addUrlToList(url, (boolean) => {
+          fs.readFile(archive.paths.archivedSites + url, (err, data) => {
+            res.end(data);
+          });
+        });
     });
 
   } else {
     res.end(archive.paths.list);
   }
-
-
 
 
 };
