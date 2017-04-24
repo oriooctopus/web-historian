@@ -5,7 +5,7 @@
 </head>
 <body>
   Enter a URL here:
-  <form method="POST" action="../basic-server.js">
+  <form method="POST">
     <input type="input" name="url"></input>
   </form>
   <script
@@ -13,10 +13,10 @@
   integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI="
   crossorigin="anonymous"></script>
   <script>
-    $('form').on('submit', function(e) {
-      e.preventDefault();
-      $.post("http://127.0.0.1:8080", "www.example.com");
-    })
+    // $('form').on('submit', function(e) {
+    //   e.preventDefault();
+    //   $.post("http://127.0.0.1:8080", "www.example.com");
+    // })
   </script>
 </body>
 </html>

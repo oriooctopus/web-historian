@@ -11,9 +11,55 @@ exports.headers = {
 };
 
 exports.serveAssets = function(res, asset, callback) {
-  // Write some code here that helps serve up your static files!
-  // (Static files are things like html (yours or archived from others...),
-  // css, or anything that doesn't change often.)
+  // check if file is index
+  if (asset === '/') {
+    fs.readFile(archive.paths.siteAssets + '/index.html', (err, data) => {
+      if (err) {console.log('error!', err);}
+
+      res.end(data.toString('utf-8'));
+    });
+  } else {
+    // check if file is in public directory
+    fs.readdir(archive.paths.siteAssets, (err, files) => {
+      console.log('this is the asset', asset.substring(1));
+      if (files.includes(asset.substring(1))) {
+        fs.readFile(archive.paths.siteAssets + asset, (err, file) => {
+          if (err) console.log('error!', err);
+
+          res.end(file.toString('utf-8'));
+        }) 
+      } else {
+        archive.isUrlArchived(asset, (isArchived) => {
+          if (isArchived) {
+            fs.readFile(archive.paths.archivedSites + '/' + asset, (err, data) => {
+              if (err) throw err;
+
+              res.writeHead(200);
+              res.end(data.toString('utf-8'));
+            });
+          } else {
+            // redirect with loading page
+            res.writeHead(302, {Location: '/loading.html'});
+            res.end();
+          }
+        });
+
+      }
+    });
+    
+  }
+    // if it does
+      // serve it
+    // if it doesn't
+      // check if exists in txt file
+        // if it does
+          // check if it exists in directory
+            // if it does
+              // serve file
+            // if it doesn't
+              // serve loading page
+        // if it doesn't
+          // serve loading page
 };
 
 

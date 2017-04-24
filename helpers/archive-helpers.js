@@ -1,6 +1,8 @@
 var fs = require('fs');
 var path = require('path');
 var _ = require('underscore');
+var http = require('http');
+var https = require('https');
 
 /*
  * You will need to reuse the same paths many times over in the course of this sprint.
@@ -68,7 +70,65 @@ exports.isUrlArchived = function(url, callback) {
 
 exports.downloadUrls = function(urls) {
   urls.forEach( (url) => {
-
-    fs.writeFile(this.paths.archivedSites + '/' + url);
+    if (url !== '') {
+      downloadUrl('http://' + url, url);
+    }
   });
 };
+
+var downloadUrl = function(url, oldurl) {
+  if (url.substring(0, 5) === 'https') {
+    https.get(url, (res) => {
+      if (Math.floor(res.statusCode / 10) * 10 === 300) {
+        downloadUrl(res.headers.location, oldurl);
+      } else {
+        var rawData = '';
+        res.on('data', (chunk) => { rawData += chunk });
+        res.on('end', () => {
+          console.log(oldurl);
+          fs.writeFile(exports.paths.archivedSites + '/' + oldurl, rawData);
+        });
+      }
+    });
+  } else {
+    http.get(url, (res) => {
+      if (Math.floor(res.statusCode / 10) * 10 === 300) {
+        downloadUrl(res.headers.location, oldurl);
+      } else {
+        var rawData = '';
+        res.on('data', (chunk) => { rawData += chunk });
+        res.on('end', () => {
+          console.log(oldurl);
+          fs.writeFile(exports.paths.archivedSites + '/' + oldurl, rawData);
+        });
+      }
+    });
+    
+  }
+
+
+  // if (url !== '') {
+  //   http.get('http://' + url, (res) => {
+  //     if (Math.floor(res.statusCode / 10) * 10 === 300 ) {
+  //       console.log('this worked!!', res.headers.location);
+  //       http.get(res.headers.location, (newRes) => {
+  //         var rawData = '';
+  //         newRes.on('data', (chunk) => { rawData += chunk });
+  //         newRes.on('end', () => {
+  //           fs.writeFile(this.paths.archivedSites + '/' + url, rawData);
+  //         });
+
+  //       });
+
+  //     } else {
+  //       var rawData = '';
+  //       res.on('data', (chunk) => { rawData += chunk });
+  //       res.on('end', () => {
+  //         fs.writeFile(this.paths.archivedSites + '/' + url, rawData);
+  //       });
+  //     }
+  //     // console.log('this is the status code', res.statusCode, res);
+      
+    // });
+  // }
+}
